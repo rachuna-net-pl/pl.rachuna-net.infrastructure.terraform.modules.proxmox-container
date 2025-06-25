@@ -1,0 +1,2 @@
+[![](https://gitlab.com/pl.rachuna-net/infrastructure/terraform/modules/proxmox-container/-/badges/release.svg)](https://gitlab.com/pl.rachuna-net/infrastructure/terraform/modules/proxmox-container/-/releases)
+[![](https://gitlab.com/pl.rachuna-net/infrastructure/terraform/modules/proxmox-container/badges/main/pipeline.svg)](https://gitlab.com/pl.rachuna-net/infrastructure/terraform/modules/proxmox-container/-/commits/main)
