@@ -1,78 +1,48 @@
-## Wymagania
+## Requirements
 
-- Terraform w wersji kompatybilnej z modułem
-- Środowisko Proxmox VE z dostępem API
-- Uprawnienia do tworzenia i zarządzania kontenerami LXC na wskazanym węźle Proxmox
+| Name | Version |
+|------|---------|
+| <a name="requirement_proxmox"></a> [proxmox](#requirement\_proxmox) | ~> 0.76.1 |
 
----
-## Zmienne wejściowe
+## Providers
 
-| Nazwa             | Typ                | Opis                                                                                  | Wartość domyślna |
-|-------------------|--------------------|---------------------------------------------------------------------------------------|------------------|
-| `hostname`        | string             | Nazwa hosta kontenera                                                                 | -                |
-| `description`     | string             | Opis kontenera                                                                        | null             |
-| `node_name`       | string             | Nazwa węzła Proxmox, na którym ma zostać utworzony kontener                           | -                |
-| `vm_id`           | number             | ID maszyny wirtualnej (kontenera)                                                    | -                |
-| `pool_id`         | string             | Nazwa puli, do której ma należeć kontener                                            | null             |
-| `protection`      | bool               | Czy kontener jest chroniony przed przypadkowym usunięciem                            | false            |
-| `start_on_boot`   | bool               | Czy kontener ma się uruchamiać automatycznie przy starcie hosta                      | false            |
-| `tags`            | list(string)       | Lista tagów przypisanych do kontenera                                                | []               |
-| `unprivileged`    | bool               | Czy kontener działa jako nieuprzywilejowany na hoście                                | false            |
-| `cpu_cores`       | number             | Liczba rdzeni CPU przydzielonych kontenerowi                                        | 1                |
-| `memory`          | object             | Konfiguracja pamięci: `dedicated` (MB), `swap` (MB)                                 | {dedicated=512, swap=512} |
-| `disk`            | object             | Konfiguracja dysku: `storage_name` (nazwa magazynu), `disk_size` (GB)                | -                |
-| `is_dmz`          | bool               | Czy kontener znajduje się w strefie DMZ (Demilitarized Zone)                         | false            |
-| `operating_system` | object             | System operacyjny: `template_file` (ścieżka do szablonu), `type` (np. alpine, ubuntu) | -                |
-| `mac_address`     | string             | Adres MAC interfejsu sieciowego kontenera                                           | null             |
-| `root`            | object (sensitive) | Konfiguracja konta root: `password` (opcjonalne), `ssh_pub_key` (opcjonalny klucz SSH) | -                |
+| Name | Version |
+|------|---------|
+| <a name="provider_proxmox"></a> [proxmox](#provider\_proxmox) | ~> 0.76.1 |
+| <a name="provider_random"></a> [random](#provider\_random) | n/a |
 
----
-## Przykład użycia
+## Modules
 
-```hcl
-module "vm01101-ct" {
-    source        = "git@gitlab.com:pl.rachuna-net/infrastructure/terraform/modules/proxmox-container.git?ref=poc"
+No modules.
 
-    hostname      = "vm01101-ct"
-    description   = "Hashicorp Vault & Consul"
-    node_name     = "pve-s1"
-    vm_id         = 1101
-    pool_id       = "vault-consul"
-    protection    = true
-    start_on_boot = true
-    tags          = ["vault-consul", "alpine"]
-    unprivileged  = true
-    is_dmz        = true
-    
-    cpu_cores     = 1
-    memory = {
-        dedicated = 1024
-        swap      = 1024
-    }
-    disk = {
-        storage_name = local.storage_name
-        disk_size    = 32
-    }
-    
-    operating_system = {
-        template_file = join("/", [local.ct_storage_name, "alpine-3.21.tar.zst"])
-        type          = "alpine"
-    }
+## Resources
 
-    root = {
-        ssh_pub_key = var.technical_user_ssh_pub_key
-    }
-}
-```
+| Name | Type |
+|------|------|
+| [proxmox_virtual_environment_container.container](https://registry.terraform.io/providers/bpg/proxmox/latest/docs/resources/virtual_environment_container) | resource |
+| [random_password.vm](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/password) | resource |
 
----
-## Wyjścia
+## Inputs
 
-Moduł nie definiuje jawnych wyjść. Informacje o stanie kontenera można uzyskać z zasobów Proxmox VE po zastosowaniu konfiguracji.
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_cpu_cores"></a> [cpu\_cores](#input\_cpu\_cores) | The number of CPU cores to allocate to the container | `number` | `1` | no |
+| <a name="input_description"></a> [description](#input\_description) | The description of the container | `string` | `null` | no |
+| <a name="input_disk"></a> [disk](#input\_disk) | The disk configuration for the container | <pre>object({<br/>    storage_name = string<br/>    disk_size    = number<br/>  })</pre> | n/a | yes |
+| <a name="input_hostname"></a> [hostname](#input\_hostname) | The hostname of the container | `string` | n/a | yes |
+| <a name="input_is_dmz"></a> [is\_dmz](#input\_is\_dmz) | Whether the container is in a DMZ (Demilitarized Zone) | `bool` | `false` | no |
+| <a name="input_mac_address"></a> [mac\_address](#input\_mac\_address) | The MAC address of the container's network interface | `string` | `null` | no |
+| <a name="input_memory"></a> [memory](#input\_memory) | The memory configuration for the container | <pre>object({<br/>    dedicated = number<br/>    swap      = number<br/>  })</pre> | <pre>{<br/>  "dedicated": 512,<br/>  "swap": 512<br/>}</pre> | no |
+| <a name="input_node_name"></a> [node\_name](#input\_node\_name) | The name of the node to create the container on | `string` | n/a | yes |
+| <a name="input_operating_system"></a> [operating\_system](#input\_operating\_system) | The operating system to install on the container | <pre>object({<br/>    template_file = string<br/>    type          = string<br/>  })</pre> | n/a | yes |
+| <a name="input_pool_id"></a> [pool\_id](#input\_pool\_id) | The name of the pool to create the container in | `string` | `null` | no |
+| <a name="input_protection"></a> [protection](#input\_protection) | Whether the container is protected from accidental deletion | `bool` | `false` | no |
+| <a name="input_root"></a> [root](#input\_root) | The root configuration for the container | <pre>object({<br/>    password    = optional(string)<br/>    ssh_pub_key = optional(string)<br/>  })</pre> | n/a | yes |
+| <a name="input_start_on_boot"></a> [start\_on\_boot](#input\_start\_on\_boot) | The startup behavior of the container | `bool` | `false` | no |
+| <a name="input_tags"></a> [tags](#input\_tags) | The tags to assign to the container | `list(string)` | `[]` | no |
+| <a name="input_unprivileged"></a> [unprivileged](#input\_unprivileged) | Whether the container runs as unprivileged on the host | `bool` | `false` | no |
+| <a name="input_vm_id"></a> [vm\_id](#input\_vm\_id) | The ID of the VM | `number` | n/a | yes |
 
----
-## Uwagi
+## Outputs
 
-- Kontener jest konfigurowany z funkcją nesting włączoną.
-- Sieć kontenera jest podłączona do mostka `vmbr0` z VLAN 10 lub 20 w zależności od flagi `is_dmz`.
-- Hasło root jest generowane losowo, jeśli nie zostanie podane.
+No outputs.
