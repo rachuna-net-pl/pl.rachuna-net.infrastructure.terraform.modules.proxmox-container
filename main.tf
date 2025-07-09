@@ -52,6 +52,7 @@ resource "proxmox_virtual_environment_container" "container" {
   }
 
   features {
+    keyctl  = true
     nesting = true
   }
 
